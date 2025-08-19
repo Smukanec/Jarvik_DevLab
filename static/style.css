@@ -1,0 +1,7 @@
+body { font-family: sans-serif; background: #1e1e1e; color: #ddd; }
+h1 { color: #6f6; }
+#sidebar { float:left; width:20%; border-right:1px solid #444; padding:1em; }
+#editor { margin-left:22%; padding:1em; }
+textarea { width:100%; background:#111; color:#eee; font-family: monospace; }
+pre { background:#222; padding:0.5em; }
+button { margin:0.2em; }

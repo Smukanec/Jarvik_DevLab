@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DevLab</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>DevLab</h1>
+  <div id="login">
+    <input id="user" placeholder="Username">
+    <input id="pass" placeholder="Password" type="password">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div id="main" style="display:none;">
+    <div id="sidebar">
+      <h2>Files</h2>
+      <ul id="tree"></ul>
+    </div>
+    <div id="editor">
+      <h2 id="filename"></h2>
+      <textarea id="code" rows="20"></textarea><br>
+      <button onclick="save()">Save</button>
+      <button onclick="diff()">Diff</button>
+      <button onclick="ai()">AI</button>
+      <button onclick="download()">Download ZIP</button>
+      <pre id="diffout"></pre>
+      <pre id="aiout"></pre>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
