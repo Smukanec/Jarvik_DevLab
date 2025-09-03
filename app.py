@@ -9,6 +9,9 @@ import requests
 app = Flask(__name__, static_folder='static', static_url_path='')
 
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), 'project')
+MODEL_GATEWAY_URL = os.environ.get('MODEL_GATEWAY_URL', 'http://localhost:8095')
+MODEL_GATEWAY_API_KEY = os.environ.get('MODEL_GATEWAY_API_KEY', '')
+DEFAULT_MODEL = os.environ.get('MODEL_GATEWAY_MODEL', 'jarvik-chat')
 
 
 def safe_path(path: str) -> str:
@@ -89,11 +92,24 @@ def download():
 def ai():
     data = request.get_json() or {}
     message = data.get('message', '')
+    model = data.get('model', DEFAULT_MODEL)
     try:
-        res = requests.post('http://localhost:11434/api/generate', json={'prompt': message})
-        return jsonify(res.json())
+        headers = {}
+        if MODEL_GATEWAY_API_KEY:
+            headers['Authorization'] = f'Bearer {MODEL_GATEWAY_API_KEY}'
+        payload = {
+            'model': model,
+            'messages': [{'role': 'user', 'content': message}],
+        }
+        res = requests.post(f"{MODEL_GATEWAY_URL}/v1/chat/completions", json=payload, headers=headers)
+        res.raise_for_status()
+        completion = res.json()
+        text = completion['choices'][0]['message']['content']
+        return jsonify({'response': text})
     except requests.RequestException as exc:
         return jsonify({'error': str(exc)}), 500
+    except (KeyError, IndexError):
+        return jsonify({'error': 'Invalid response from model gateway'}), 500
 
 
 if __name__ == '__main__':
