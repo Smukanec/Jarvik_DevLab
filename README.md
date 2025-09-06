@@ -11,8 +11,9 @@ python app.py
 
 ## AI backend
 
-The `/api/ai` endpoint forwards requests to a [Jarvik Model Gateway](https://github.com/) instance
+The `/api/ai` endpoint forwards requests to a [Jarvik Model Gateway](MODEL_GATEWAY.md) instance
 that proxies local models through an OpenAI-compatible API.
+See [MODEL_GATEWAY.md](MODEL_GATEWAY.md) for full installation and usage instructions.
 Configure access via environment variables:
 
 - `MODEL_GATEWAY_URL` (default `http://localhost:8095`)
