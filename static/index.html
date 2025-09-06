@@ -1,35 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <title>DevLab</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Devlab – Jarvik</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background:#0b1b14; color:#d9fbe5; margin:0; }
+    header { padding:16px 20px; border-bottom:1px solid #1d3c2e; }
+    h1 { margin:0; font-size:20px; }
+    main { max-width:900px; margin:24px auto; padding:0 16px; }
+    .card { background:#0f2a1f; border:1px solid #1d3c2e; border-radius:14px; padding:16px; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+    textarea, input, button { width:100%; box-sizing:border-box; }
+    textarea { background:#0b1b14; color:#eafff3; border:1px solid #1d3c2e; border-radius:10px; padding:10px; min-height:120px; }
+    button { margin-top:12px; padding:12px; border-radius:10px; border:1px solid #2f5b47; background:#1a4131; color:#d9fbe5; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    pre { white-space:pre-wrap; background:#07120e; color:#d9fbe5; border:1px solid #1d3c2e; border-radius:10px; padding:12px; min-height:120px; }
+    .row { display:grid; grid-template-columns: 1fr; gap:16px; }
+    .muted { color:#9dd8bd; font-size:12px; }
+  </style>
 </head>
 <body>
-  <h1>DevLab</h1>
-  <div id="login">
-    <input id="user" placeholder="Username">
-    <input id="pass" placeholder="Password" type="password">
-    <button onclick="login()">Login</button>
-  </div>
-
-  <div id="main" style="display:none;">
-    <div id="sidebar">
-      <h2>Files</h2>
-      <ul id="tree"></ul>
+  <header><h1>Devlab – Jarvik</h1></header>
+  <main>
+    <div class="card">
+      <label for="model" class="muted">Model (OpenAI kompatibilní)</label>
+      <input id="model" value="mistral" />
+      <label for="message" class="muted" style="margin-top:8px; display:block;">Dotaz</label>
+      <textarea id="message" placeholder="Zadej dotaz..."></textarea>
+      <button id="sendBtn" onclick="ask()">Odeslat</button>
     </div>
-    <div id="editor">
-      <h2 id="filename"></h2>
-      <textarea id="code" rows="20"></textarea><br>
-      <button onclick="save()">Save</button>
-      <button onclick="diff()">Diff</button>
-      <button onclick="ai()">AI</button>
-      <button onclick="download()">Download ZIP</button>
-      <pre id="diffout"></pre>
-      <pre id="aiout"></pre>
-    </div>
-  </div>
 
-  <script src="app.js"></script>
+    <div class="card" style="margin-top:16px;">
+      <div class="muted">Odpověď</div>
+      <pre id="response"></pre>
+    </div>
+  </main>
+
+  <script>
+    async function ask() {
+      const btn = document.getElementById("sendBtn");
+      const msg = document.getElementById("message").value.trim();
+      const model = document.getElementById("model").value.trim() || "mistral";
+      const out = document.getElementById("response");
+      if (!msg) return;
+
+      btn.disabled = true; out.textContent = "⏳ Generuji...";
+
+      try {
+        const res = await fetch("/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model,
+            messages: [{ role: "user", content: msg }]
+          })
+        });
+
+        const data = await res.json();
+        const text =
+          data?.choices?.[0]?.message?.content ??
+          (data?.error ? `Chyba: ${data.error.message || data.error}` : JSON.stringify(data, null, 2));
+        out.textContent = text;
+      } catch (e) {
+        out.textContent = "Chyba požadavku: " + e;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
 </body>
 </html>
